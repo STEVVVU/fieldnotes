@@ -65,3 +65,6 @@ apps/mobile/ios/App/CapApp-SPM/Package.swift
 !.claude/skills/
 .pnpm-store
 apps/edit-docs/output.zip
+/.audit/
+/.tooling/
+/.fieldnotes/
