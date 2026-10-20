@@ -1,266 +1,87 @@
-# Trilium Notes
+# Fieldnotes
 
-![GitHub Sponsors](https://img.shields.io/github/sponsors/eliandoran) ![LiberaPay patrons](https://img.shields.io/liberapay/patrons/ElianDoran)  
-![Docker Pulls](https://img.shields.io/docker/pulls/triliumnext/trilium)
-![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/triliumnext/trilium/total)  
-[![Translation status](https://hosted.weblate.org/widget/trilium/svg-badge.svg)](https://hosted.weblate.org/engage/trilium/)
+Evidence capture for a local research notebook. A full [Trilium](https://github.com/TriliumNext/Trilium) fork with a browser clipper, web application, SQLite service, and Electron desktop source.
 
-<!-- translate:off -->
-<!-- LANGUAGE SWITCHER -->
-[Arabic](./docs/README-ar.md) | [Chinese (Simplified Han script)](./docs/README-ZH_CN.md) | [Chinese (Traditional Han script)](./docs/README-ZH_TW.md) | [Czech](./docs/README-cs.md) | [English (United Kingdom)](./docs/README-en_GB.md) | [English](./docs/README.md) | [French](./docs/README-fr.md) | [German](./docs/README-de.md) | [Greek](./docs/README-el.md) | [Indonesian](./docs/README-id.md) | [Irish](./docs/README-ga.md) | [Italian](./docs/README-it.md) | [Japanese](./docs/README-ja.md) | [Korean](./docs/README-ko.md) | [Polish](./docs/README-pl.md) | [Romanian](./docs/README-ro.md) | [Russian](./docs/README-ru.md) | [Spanish](./docs/README-es.md) | [Ukrainian](./docs/README-uk.md) | [Urdu](./docs/README-ur.md) | [Uyghur](./docs/README-ug.md) | [Vietnamese](./docs/README-vi.md)
-<!-- translate:on -->
+Fieldnotes adds separate capture records, exact UTF-8 snapshot attachments, versioned manifests, SHA-256 consistency checks, and repeat-safe receipt handling. A researcher can keep an editable reading note while retaining the captured representation beside it.
 
-Trilium Notes is a free and open-source, cross-platform hierarchical note taking application with focus on building large personal knowledge bases.
+![Captured evidence in the real Fieldnotes web application](docs/images/fieldnotes-evidence.png)
 
-Looking for "Trillium Notes"? The project's canonical spelling is "Trilium Notes", with one `l`.
+Synthetic capture opened in the real web application after a server restart. The reading note is editable; its exact snapshot and manifest are separate attachments.
 
-<img src="./docs/app.png" alt="Trilium Screenshot" width="1000">
+## What this fork adds
 
-## ⏬ Download
-- [Latest release](https://github.com/TriliumNext/Trilium/releases/latest) – stable version, recommended for most users.
-- [Nightly build](https://github.com/TriliumNext/Trilium/releases/tag/nightly) – unstable development version, updated daily with the latest features and fixes.
+- Article and selection evidence previews with source, destination, timestamp and digest.
+- Confirmation bound to the captured bytes, browser tab, document identity and destination.
+- A separate record for each capture. An identical retry returns its original receipt; a changed retry returns a conflict.
+- A snapshot stored as an inert text attachment, a JSON manifest, and a readable text conversion. The server does not download missing images.
+- A broker that rejects privileged requests from content scripts. Notification links use expiring, one-use grants scoped to a tab, top frame, URL and saved action.
+- Redacted connection status, Chrome trusted-context storage access and a reusable real-server verification driver.
 
-## 📚 Documentation
+Trilium supplies the editor, note hierarchy, search, SQLite storage, sync, desktop shell, existing capture modes, and most of this repository. The original [README](README.upstream.md) and license notices are preserved. Fieldnotes starts from upstream commit [`8a6ba90`](https://github.com/TriliumNext/Trilium/commit/8a6ba90e6c9456b3f5552be0122a4972c5c6818b).
 
-**Visit our comprehensive documentation at [docs.triliumnotes.org](https://docs.triliumnotes.org/)**
+## Run an isolated demo
 
-Our documentation is available in multiple formats:
-- **Online Documentation**: Browse the full documentation at [docs.triliumnotes.org](https://docs.triliumnotes.org/)
-- **In-App Help**: Press `F1` within Trilium to access the same documentation directly in the application
-- **GitHub**: Navigate through the [User Guide](./docs/User%20Guide/User%20Guide/) in this repository
+Use Node **24.22.0** and pnpm **12.14.0**.
 
-### Quick Links
-- [Getting Started Guide](https://docs.triliumnotes.org/)
-- [Installation Instructions](https://docs.triliumnotes.org/user-guide/setup)
-- [Docker Setup](https://docs.triliumnotes.org/user-guide/setup/server/installation/docker)
-- [Upgrading TriliumNext](https://docs.triliumnotes.org/user-guide/setup/upgrading)
-- [Basic Concepts and Features](https://docs.triliumnotes.org/user-guide/concepts/notes)
-- [Patterns of Personal Knowledge Base](https://docs.triliumnotes.org/user-guide/misc/patterns-of-personal-knowledge)
-
-## 🎁 Features
-
-* Notes can be arranged into arbitrarily deep tree. Single note can be placed into multiple places in the tree (see [cloning](https://docs.triliumnotes.org/user-guide/concepts/notes/cloning))
-* Rich WYSIWYG note editor including e.g. tables, images and [math](https://docs.triliumnotes.org/user-guide/note-types/text) with markdown [autoformat](https://docs.triliumnotes.org/user-guide/note-types/text/markdown-formatting)
-* Support for editing [notes with source code](https://docs.triliumnotes.org/user-guide/note-types/code), including syntax highlighting
-* Fast and easy [navigation between notes](https://docs.triliumnotes.org/user-guide/concepts/navigation/note-navigation), full text search and [note hoisting](https://docs.triliumnotes.org/user-guide/concepts/navigation/note-hoisting)
-* Seamless [note versioning](https://docs.triliumnotes.org/user-guide/concepts/notes/note-revisions)
-* Note [attributes](https://docs.triliumnotes.org/user-guide/advanced-usage/attributes) can be used for note organization, querying and advanced [scripting](https://docs.triliumnotes.org/user-guide/scripts)
-* UI available in English, German, Spanish, French, Romanian, and Chinese (simplified and traditional)
-* Direct [OpenID and TOTP integration](https://docs.triliumnotes.org/user-guide/setup/server/mfa) for more secure login
-* [Synchronization](https://docs.triliumnotes.org/user-guide/setup/synchronization) with self-hosted sync server
-  * there are [3rd party services for hosting synchronisation server](https://docs.triliumnotes.org/user-guide/setup/server/cloud-hosting)
-* [Sharing](https://docs.triliumnotes.org/user-guide/advanced-usage/sharing) (publishing) notes to public internet
-* Strong [note encryption](https://docs.triliumnotes.org/user-guide/concepts/notes/protected-notes) with per-note granularity
-* Sketching diagrams, based on [Excalidraw](https://excalidraw.com/) (note type "canvas")
-* [Relation maps](https://docs.triliumnotes.org/user-guide/note-types/relation-map) and [note/link maps](https://docs.triliumnotes.org/user-guide/note-types/note-map) for visualizing notes and their relations
-* Mind maps, based on [Mind Elixir](https://docs.mind-elixir.com/)
-* [Geo maps](https://docs.triliumnotes.org/user-guide/collections/geomap) with location pins and GPX tracks
-* [Scripting](https://docs.triliumnotes.org/user-guide/scripts) - see [Advanced showcases](https://docs.triliumnotes.org/user-guide/advanced-usage/advanced-showcases)
-* [REST API](https://docs.triliumnotes.org/user-guide/advanced-usage/etapi) for automation
-* Scales well in both usability and performance upwards of 100 000 notes
-* Touch optimized [mobile frontend](https://docs.triliumnotes.org/user-guide/setup/mobile-frontend) for smartphones and tablets
-* Built-in [dark theme](https://docs.triliumnotes.org/user-guide/concepts/themes), support for user themes
-* [Evernote](https://docs.triliumnotes.org/user-guide/concepts/import-export/import-from-apps/evernote.html) and [Markdown import & export](https://docs.triliumnotes.org/user-guide/concepts/import-export/markdown)
-* [Web Clipper](https://docs.triliumnotes.org/user-guide/setup/web-clipper) for easy saving of web content
-* Customizable UI (sidebar buttons, user-defined widgets, ...)
-* [Metrics](https://docs.triliumnotes.org/user-guide/advanced-usage/metrics), along with a Grafana Dashboard.
-
-✨ Check out the following third-party resources/communities for more TriliumNext related goodies:
-
-- [awesome-trilium](https://github.com/Nriver/awesome-trilium) for 3rd party themes, scripts, plugins and more.
-- [TriliumRocks!](https://trilium.rocks/) for tutorials, guides, and much more.
-
-## ❓Why TriliumNext?
-
-The original Trilium developer ([Zadam](https://github.com/zadam)) has graciously given the Trilium repository to the community project which resides at https://github.com/TriliumNext
-
-### ⬆️Migrating from Zadam/Trilium?
-
-There are no special migration steps to migrate from a zadam/Trilium instance to a TriliumNext/Trilium instance. Simply [install TriliumNext/Trilium](#-installation) as usual and it will use your existing database.
-
-Versions up to and including [v0.90.4](https://github.com/TriliumNext/Trilium/releases/tag/v0.90.4) are compatible with the latest zadam/trilium version of [v0.63.7](https://github.com/zadam/trilium/releases/tag/v0.63.7). Any later versions of TriliumNext/Trilium have their sync versions incremented which prevents direct migration.
-
-## 💬 Discuss with us
-
-Feel free to join our official conversations. We would love to hear what features, suggestions, or issues you may have!
-
-- [Matrix](https://matrix.to/#/#triliumnext:matrix.org) (For synchronous discussions.)
-  - The `General` Matrix room is also bridged to [XMPP](xmpp:discuss@trilium.thisgreat.party?join)
-- [Github Discussions](https://github.com/TriliumNext/Trilium/discussions) (For asynchronous discussions.)
-- [Github Issues](https://github.com/TriliumNext/Trilium/issues) (For bug reports and feature requests.)
-
-## 🏗 Installation
-
-### Windows / MacOS
-
-Download the binary release for your platform from the [latest release page](https://github.com/TriliumNext/Trilium/releases/latest), unzip the package and run the `trilium` executable.
-
-### Linux
-
-If your distribution is listed in the table below, use your distribution's package.
-
-[![Packaging status](https://repology.org/badge/vertical-allrepos/trilium.svg)](https://repology.org/project/trilium/versions)
-
-You may also download the binary release for your platform from the [latest release page](https://github.com/TriliumNext/Trilium/releases/latest), unzip the package and run the `trilium` executable.
-
-TriliumNext is also provided as a Flatpak, but not yet published on FlatHub.
-
-### Browser (any OS)
-
-If you use a server installation (see below), you can directly access the web interface (which is almost identical to the desktop app).
-
-Currently only the latest versions of Chrome & Firefox are supported (and tested).
-
-### Mobile
-
-To use TriliumNext on a mobile device, you can use a mobile web browser to access the mobile interface of a server installation (see below).
-
-See issue https://github.com/TriliumNext/Trilium/issues/4962 for more information on mobile app support.
-
-#### TriliumDroid
-
-If you prefer a native Android app, you can use [TriliumDroid](https://apt.izzysoft.de/fdroid/index/apk/eu.fliegendewurst.triliumdroid).
-Report bugs and missing features at [their repository](https://github.com/FliegendeWurst/TriliumDroid).
-Note: It is best to disable automatic updates on your server installation (see below) when using TriliumDroid since the sync version must match between Trilium and TriliumDroid.
-
-#### Pocket Trilium
-
-If you want a full-featured native Android app, check out [Pocket Trilium](https://github.com/Nriver/pocket-trilium).
-It runs a complete Trilium instance on your phone, supports full offline use, and allows you to sync with your server.
-
-#### Trinote
-
-If you want a native iOS app, you can use [Trinote](https://apps.apple.com/us/app/trinote/id6761228249), an open-source client for your self-hosted Trilium / TriliumNext server.
-It lets you browse and organize your note tree, search for notes on the server, read and edit all note types (text, code, mindmap, spreadsheet, geomap, canvas, etc.), and keeps notes available and editable offline.
-Here's the [repo](https://github.com/StephenArg/Trinote) if you're interested in contributing and here's the [discord](https://discord.com/invite/ghjJG56EUS) server if you have any feedback or suggestions you want to discuss.
-
-### Server
-
-To install TriliumNext on your own server (including via Docker from [Dockerhub](https://hub.docker.com/r/triliumnext/trilium)) follow [the server installation docs](https://docs.triliumnotes.org/user-guide/setup/server).
-
-
-## 💻 Contribute
-
-### Translations
-
-If you are a native speaker, help us translate Trilium by heading over to our [Weblate page](https://hosted.weblate.org/engage/trilium/).
-
-Here's the language coverage we have so far:
-
-[![Translation status](https://hosted.weblate.org/widget/trilium/multi-auto.svg)](https://hosted.weblate.org/engage/trilium/)
-
-### Code
-
-Download the repository, install dependencies using `pnpm` and then run the server (available at http://localhost:8080):
-```shell
-git clone https://github.com/TriliumNext/Trilium.git
-cd Trilium
-pnpm install
-pnpm run server:start
+```sh
+pnpm install --frozen-lockfile
+node tools/verify-fieldnotes-server.mjs demo-001 8097
 ```
 
-### Documentation
+The driver copies the checked-in synthetic fixture into a new, ignored run directory. It starts the real application on `http://127.0.0.1:8097` and an owned source fixture on port 8098. Open the application and use the fixture's existing password, `demo1234`. This public test password is for a loopback demonstration only.
 
-Download the repository, install dependencies using `pnpm` and then run the environment required to edit the documentation:
-```shell
-git clone https://github.com/TriliumNext/Trilium.git
-cd Trilium
-pnpm install
-pnpm edit-docs:edit-docs
+Enter commands in the driver's terminal:
+
+```text
+evidence
+restart
+verify
+cleanup
 ```
 
-Alternatively, if you have Nix installed:
-```shell
-# Run directly
-nix run .#edit-docs
+`evidence` preserves a synthetic research observation through the production HTTP route. `restart` reopens the same SQLite database and checks exact bytes, manifest hashes and the original receipt. `cleanup` stops the owned processes while retaining evidence under `.audit/verification/demo-001/`.
 
-# Or install to your profile
-nix profile install .#edit-docs
-trilium-edit-docs
+Use a new run name each time. For a new personal notebook, follow [Trilium's setup guide](README.upstream.md) with your own data directory and credentials.
+
+## Build the clipper
+
+```sh
+pnpm --filter web-clipper build
+pnpm --filter web-clipper build:firefox
 ```
 
+Chrome output is `apps/web-clipper/.output/chrome-mv3`; Firefox output is `.output/firefox-mv2`. Configure the built extension against this fork's server, then use **Preview article evidence** or **Preview selection evidence** in the popup. Inspect the destination and digest before **Preserve this capture**. The ordinary Trilium store extension does not contain Fieldnotes' additions.
 
-### Building the Executable
-Download the repository, install dependencies using `pnpm` and then build the desktop app for Windows:
-```shell
-git clone https://github.com/TriliumNext/Trilium.git
-cd Trilium
-pnpm install
-pnpm run --filter desktop electron-forge:make --arch=x64 --platform=win32
+Evidence capture requires browser document IDs. A browser without that capability can still use inherited capture modes, but the new evidence action refuses to proceed. Both targets build locally; neither target has an installed-extension acceptance pass yet.
+
+## Verification
+
+```sh
+pnpm --filter web-clipper test --run --coverage
+pnpm --filter server test --run src/routes/api/evidence.spec.ts src/routes/api/clipper.spec.ts
+pnpm typecheck
 ```
 
-For more details, see the [development docs](https://github.com/TriliumNext/Trilium/tree/main/docs/Developer%20Guide/Developer%20Guide).
+The clipper has 176 passing tests with its existing 100% line, statement, branch and function thresholds. The real HTTP driver verifies authentication, capture receipts, byte preservation, server restart and zero server requests for missing images. [Verification instructions and feature map](.agents/skills/verify-fieldnotes/SKILL.md) distinguish those checks from unavailable installed-extension and native desktop checks.
 
-### Developer Documentation
+The Windows desktop bundle builds, and the actual Electron 44.7.2 main process preserves an evidence record, passes Host-header checks and retains that record in SQLite after shutdown. The maintained driver is `node tools/verify-fieldnotes-desktop.mjs <new-run-name> 8099`. Native rendering and packaged installation remain unverified.
 
-Please view the [documentation guide](https://github.com/TriliumNext/Trilium/blob/main/docs/Developer%20Guide/Developer%20Guide/Environment%20Setup.md) for details. If you have more questions, feel free to reach out via the links described in the "Discuss with us" section above.
+## Research connection
 
-## 💖 Sponsors
+The broker experiment adapts the compromised-content-script threat model from [Carlini, Felt and Wagner, *An Evaluation of the Google Chrome Extension Security Architecture*, section 5.1](https://www.usenix.org/system/files/conference/usenixsecurity12/sec12-final177_0.pdf). Regression cases attempt unsolicited saves, arbitrary PDF fetches, unrelated tab closure and arbitrary note opening, then check that denied requests have no network or tab side effects.
 
-<table>
-  <tr>
-    <td align="center" width="25%">
-      <a href="https://www.netperfect.fr">
-        <img src="https://www.netperfect.fr/sites/default/files/Logo%20NetPerfect%20V4%20250px_0.png" width="64" alt="NetPerfect logo" /><br />
-        <b>NetPerfect</b>
-      </a>
-      <br />EV certificate &amp; Windows CI
-    </td>
-    <td align="center" width="50%">
-      <a href="https://ckeditor.com/ckeditor-5/features/">
-        <img src="./docs/logo-ck.svg" width="180" alt="CKEditor logo" /><br />
-        <b>CKEditor</b>
-      </a>
-      <br />Premium editor features
-    </td>
-    <td align="center" width="25%">
-      <a href="https://dosu.dev/">
-        <img src="https://dosu.dev/hero-new/dosu-icon.svg" width="64" height="64" alt="Dosu logo" /><br />
-        <b>Dosu</b>
-      </a>
-      <br />Automated GitHub support
-    </td>
-  </tr>
-</table>
+[MIT 6.858's Browser Security lab](https://www.css.csail.mit.edu/6.858/2022/labs/lab4.html) is a related course exercise for browser isolation and defensive evaluation. This fork applies that learning direction to a complete notes application. It does not claim completion of the course lab or reproduction of the paper's full study.
 
-## 👏 Shoutouts
+## Limits
 
-* [zadam](https://github.com/zadam) for the original concept and implementation of the application.
-* [Sarah Hussein](https://github.com/Sarah-Hussein) for designing the application icon.
-* [nriver](https://github.com/nriver) for his work on internationalization.
-* [Thomas Frei](https://github.com/thfrei) for his original work on the Canvas.
-* [antoniotejada](https://github.com/nriver) for the original syntax highlight widget.
-* [Tabler Icons](https://tabler.io/icons) for the system tray icons.
-*   The application icons in the import dialog are from:
-    *   [Material Design Icons](https://pictogrammers.com/library/mdi/) for OneNote, Google Keep, Evernote.
-    *   [Font Awesome](https://fontawesome.com/) for Notion, Obsidian.
-    *   [SVGicons.com](https://svgicons.com/icon/187676/anytype) for Anytype.
-*  The LLM provider icons are from [Lobe Icons](https://lobehub.com/icons).
+Hashes establish consistency of the stored bytes. They do not prove website authorship or provide a trusted timestamp. A database owner can edit attachments and integrity labels. Capture routes do not overwrite an existing record, but this application is not write-once storage or a forensic chain-of-custody system.
 
-Trilium would not be possible without the technologies behind it:
+The snapshot is extracted HTML, not a complete original HTTP response or an offline page archive. The manifest lists referenced images as not captured. The server's no-fetch behavior is verified; inherited browser extraction and rich preview can load resources. No browser-wide no-network guarantee is claimed.
 
-* [CKEditor 5](https://github.com/ckeditor/ckeditor5) - the visual editor behind text notes.
-* [CodeMirror](https://github.com/codemirror/CodeMirror) - code editor with support for huge amount of languages.
-* [Mermaid](https://github.com/mermaid-js/mermaid) - renders the diagrams of Mermaid notes; its parsers are the model for their syntax highlighting.
-* [codemirror-lang-mermaid](https://github.com/inspirnathan/codemirror-lang-mermaid) - the base of the Mermaid syntax highlighting.
-* [Excalidraw](https://github.com/excalidraw/excalidraw) - the infinite whiteboard used in Canvas notes.
-* [Mind Elixir](https://github.com/SSShooter/mind-elixir-core) - providing the mind map functionality.
-* [Leaflet](https://github.com/Leaflet/Leaflet) - for rendering geographical maps.
-* [Tabulator](https://github.com/olifolkerd/tabulator) - for the interactive table used in collections.
-* [FancyTree](https://github.com/mar10/fancytree) - feature-rich tree library without real competition. 
+Chrome's storage restriction depends on `storage.sync.setAccessLevel`. Other browsers do not gain that guarantee when the API is absent. Broad inherited host permissions remain. Live sync, store submission, packaged desktop installation, mobile platforms and native rendering have not been verified for this fork.
 
-## 🤝 Support
+The full upstream workspace still has **four dependency advisories**, including three high and one moderate, as of October 20, 2026. See [the dependency assessment and API contract](FIELDNOTES.md). This is a development fork, not a production security certification.
 
-Trilium is built and maintained with [hundreds of hours of work](https://github.com/TriliumNext/Trilium/graphs/commit-activity). Your support keeps it open-source, improves features, and covers costs such as hosting.
+## License
 
-Consider supporting the main developer ([eliandoran](https://github.com/eliandoran)) of the application via:
-
-- [GitHub Sponsors](https://github.com/sponsors/eliandoran)
-- [PayPal](https://paypal.me/eliandoran)
-- [Buy Me a Coffee](https://buymeacoffee.com/eliandoran)
-
-## 🔑 License
-
-Copyright 2017-2025 zadam, Elian Doran, and other contributors
-
-This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+The Trilium application retains its [AGPLv3 license](LICENSE). The web clipper retains its [GPLv3 license](apps/web-clipper/LICENSE) and inherited credits, including its Joplin-derived portions. Original authorship and history remain intact.

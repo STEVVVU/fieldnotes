@@ -1,0 +1,38 @@
+name: Fieldnotes checks
+
+on:
+  push:
+    branches: [fieldnotes]
+  pull_request:
+    branches: [fieldnotes]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.22.0
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 12.14.0
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter web-clipper test --run --coverage
+      - run: pnpm --filter server test --run src/routes/api/evidence.spec.ts src/routes/api/clipper.spec.ts
+      - run: pnpm typecheck
+      - run: pnpm --filter web-clipper build
+      - run: pnpm --filter web-clipper build:firefox
+      - run: node tools/verify-fieldnotes-server.mjs ci-${{ github.run_id }} 8097 --ci
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fieldnotes-verification
+          path: |
+            .audit/verification/*/result.json
+            .audit/verification/*/server.log
