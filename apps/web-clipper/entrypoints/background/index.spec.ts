@@ -49,6 +49,7 @@ vi.mock("./trilium_server_facade", () => ({
 }));
 
 import background from "./index";
+import { EvidenceCaptures } from "./evidence";
 
 type Tab = { id?: number, title?: string, url?: string, favIconUrl?: string };
 type ContextMenuClick = {
@@ -100,6 +101,10 @@ const SVG = "<svg xmlns='http://www.w3.org/2000/svg'></svg>";
 describe("background", () => {
     beforeEach(async () => {
         fakeBrowser.reset();
+        executeScript.mockImplementation(async ({ args, func }) => {
+            if (args) return [{ result: pageReadings[args[0]] }];
+            return func ? [{ result: pdfTab }] : [];
+        });
         tabs = [ ACTIVE_TAB ];
         tabMessageHandler = () => undefined;
         pageReadings = {};
@@ -161,6 +166,39 @@ describe("background", () => {
             "trilium-save-link",
             "trilium-save-image"
         ]);
+    });
+
+    it("denies privileged content-script messages without network or tab side effects", async () => {
+        const removeTabs = vi.spyOn(fakeBrowser.tabs, "remove");
+        const sender = { id: fakeBrowser.runtime.id, tab: { id: 7 }, frameId: 0, url: PAGE_URL };
+        for (const request of [
+            { name: "save-pdf", url: "https://private.invalid" },
+            { name: "save-selection", selection: { content: "unsolicited" } },
+            { name: "closeTabs", tabIds: [99] }, { name: "openNoteInTrilium", noteId: "other" },
+            { name: "prepare-evidence", mode: "article" }, { name: "commit-evidence", captureId: "forged" }
+        ]) {
+            expect(await sendRuntimeMessage(request, sender)).toMatchObject({ error: expect.stringContaining("not authorized") });
+        }
+        expect(facade.callService).not.toHaveBeenCalled();
+        expect(fetchMock).not.toHaveBeenCalled();
+        expect(removeTabs).not.toHaveBeenCalled();
+    });
+
+    it("prepares and commits evidence only through the trusted popup and leaves offscreen crop messages to its listener", async () => {
+        const prepared = { schemaVersion: 1, captureId: "a".repeat(32), contentSha256: "b".repeat(64), mode: "article",
+            sourceUrl: PAGE_URL, title: "Evidence", capturedAt: new Date().toISOString(), extractor: "defuddle/0.19.5", content: "<p>Evidence</p>", destination: "Server https://notes.example.org" } as const;
+        const prepare = vi.spyOn(EvidenceCaptures.prototype, "prepare").mockResolvedValue(prepared);
+        const commit = vi.spyOn(EvidenceCaptures.prototype, "commit").mockResolvedValue({ noteId: "evidence-note", message: "Preserved" });
+        const capture = await sendRuntimeMessage({ name: "prepare-evidence", mode: "article" }) as { captureId: string; contentSha256: string };
+        expect(capture.captureId).toMatch(/^[a-f0-9]{32}$/);
+        expect(await sendRuntimeMessage({ name: "commit-evidence", captureId: capture.captureId, contentSha256: capture.contentSha256 }))
+            .toMatchObject({ noteId: "evidence-note" });
+        expect(prepare).toHaveBeenCalledWith("article");
+        expect(commit).toHaveBeenCalledWith(prepared.captureId, prepared.contentSha256);
+        const response = vi.fn();
+        const [result] = await fakeBrowser.runtime.onMessage.trigger({ type: "CROP_IMAGE" }, {}, response);
+        expect(result).toBe(false);
+        expect(response).not.toHaveBeenCalled();
     });
 
     describe("saving the selection", () => {
@@ -1271,10 +1309,10 @@ function connect(name: string) {
  * Sends a message as Chrome delivers it: Chrome ignores a promise the listener returns, and waits for
  * `sendResponse()` only when the listener returns `true`.
  */
-async function sendRuntimeMessage(message: object) {
+async function sendRuntimeMessage(message: object, sender: object = { id: fakeBrowser.runtime.id, url: fakeBrowser.runtime.getURL("/popup.html") }) {
     let sendResponse: (response: unknown) => void = () => {};
     const response = new Promise((resolve) => sendResponse = resolve);
-    const [ result ] = await fakeBrowser.runtime.onMessage.trigger(message, {}, sendResponse);
+    const [ result ] = await fakeBrowser.runtime.onMessage.trigger(message, sender, sendResponse);
     expect(result).toBe(true);
     return await response;
 }

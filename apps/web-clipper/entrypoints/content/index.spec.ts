@@ -231,14 +231,22 @@ describe("content script", () => {
             const noteMessage = showToast.mock.lastCall?.[0] as HTMLElement;
             expect(noteMessage.querySelectorAll("a")).toHaveLength(1);
 
-            await send({ name: "toast", message: "Saved.", noteId: "n1", tabIds: [ 1, 2 ] });
+            await send({ name: "toast", message: "Saved.", noteId: "n1", tabIds: [ 1, 2 ], openGrant: "open-grant", closeGrant: "close-grant" });
             const tabsMessage = showToast.mock.lastCall?.[0] as HTMLElement;
             const [ openLink, closeLink ] = tabsMessage.querySelectorAll("a");
             openLink?.click();
             closeLink?.click();
+            expect(sendMessage).not.toHaveBeenCalled();
+            expect(openLink).toBeDefined();
+            expect(closeLink).toBeDefined();
+            for (const link of [openLink, closeLink]) {
+                const event = new MouseEvent("click");
+                Object.defineProperty(event, "isTrusted", { value: true });
+                link?.dispatchEvent(event);
+            }
             expect(sendMessage.mock.calls).toEqual([
-                [ null, { name: "openNoteInTrilium", noteId: "n1" } ],
-                [ null, { name: "closeTabs", tabIds: [ 1, 2 ] } ]
+                [ null, { name: "redeem-toast", grant: "open-grant" } ],
+                [ null, { name: "redeem-toast", grant: "close-grant" } ]
             ]);
         });
     });

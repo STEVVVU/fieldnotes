@@ -33,6 +33,7 @@ import {
 } from "@/utils";
 
 import type { TriliumSearchNoteStatus, TriliumSearchStatus } from "../background/trilium_server_facade";
+import { EvidencePanel } from "./evidence_panel";
 
 const HELP_URL = "https://docs.triliumnotes.org/user-guide/setup/web-clipper";
 const DISCONNECTED_TITLE = "This action can't be performed without active connection to Trilium.";
@@ -704,6 +705,9 @@ function PagePreview({ tab, disabled, shortcuts, draft, onDraftChange, saveState
                 <span className="action-label">{button.label}</span>
                 <Shortcut keys={button.shortcut ?? shortcuts[button.command]} />
             </button>
+            {(mode === "selection" || (mode === "page" && variant === "article")) && clip && <EvidencePanel
+                key={mode} mode={mode === "selection" ? "selection" : "article"} disabled={disabled || !!busy}
+            />}
         </div>
     );
 }

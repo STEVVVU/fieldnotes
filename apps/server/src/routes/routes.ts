@@ -19,6 +19,7 @@ import shareRoutes from "../share/routes.js";
 import clipperRoute from "./api/clipper.js";
 import databaseRoute from "./api/database.js";
 import etapiTokensApiRoutes from "./api/etapi_tokens.js";
+import { getEvidence, saveEvidence } from "./api/evidence.js";
 import filesRoute from "./api/files.js";
 // API routes
 import llmChatRoute from "./api/llm_chat.js";
@@ -135,6 +136,9 @@ function register(app: express.Application) {
     const clipperMiddleware = isElectron ? [] : [auth.checkEtapiToken];
 
     route(GET, "/api/clipper/handshake", clipperMiddleware, clipperRoute.handshake, apiResultHandler);
+    route(GET, "/api/clipper/evidence-capabilities", clipperMiddleware, () => ({ evidenceCaptureVersion: 1 }), apiResultHandler);
+    route(PST, "/api/clipper/evidence", clipperMiddleware, saveEvidence, apiResultHandler);
+    route(GET, "/api/clipper/evidence/:captureId", clipperMiddleware, getEvidence, apiResultHandler);
     asyncRoute(PST, "/api/clipper/clippings", clipperMiddleware, clipperRoute.addClipping, apiResultHandler);
     asyncRoute(PST, "/api/clipper/notes", clipperMiddleware, clipperRoute.createNote, apiResultHandler);
     asyncRoute(PST, "/api/clipper/files", clipperMiddleware, clipperRoute.createFile, apiResultHandler);

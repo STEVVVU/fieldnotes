@@ -143,6 +143,25 @@ Development versions are version pre-release versions, generally meant for testi
     5.  Point it to `trilium-web-clipper-[x.y.z]-firefox.zip`.
     6.  Press the _Add_ button to confirm.
 
+## Fieldnotes evidence capture
+
+Fieldnotes is a separate Trilium fork with an evidence workflow. This feature is not part of the store extension linked above.
+
+To preserve a capture, build and configure the Fieldnotes clipper against the Fieldnotes server:
+
+1.  Open an HTTP or HTTPS page and select the article or selection mode in the popup.
+2.  Select _Preview article evidence_ or _Preview selection evidence_. This reads the page again. Title edits and the personal note above the action are not included.
+3.  Inspect the source, destination, capture time and SHA-256 digest.
+4.  Select _Preserve this capture_. Open the resulting evidence note to read its inert text conversion and access its snapshot and manifest attachments.
+
+If a response is lost, select _Retry this capture_ to recover the same receipt. Canceling or closing the preview abandons this retry state. A new capture has a new ID and creates a separate record.
+
+The action refuses to save after a tab, document or destination change, or when the browser provides no document identity. The preview expires after ten minutes and does not survive a background-worker restart. Existing capture actions remain available independently.
+
+The server preserves the extracted HTML as a text attachment and lists referenced images as not captured. It does not download those images. Browser extraction and the inherited preview can still load resources. Hashes detect inconsistent stored content; they do not prove website authorship or provide a trusted timestamp. A database owner can edit the note and its attachments.
+
+Both extension targets build, but actual installation, the rendered popup and native desktop use remain unverified for this fork. Chrome's credential-storage restriction depends on a supported access-level API. Other browsers do not gain that guarantee when the API is absent.
+
 ## Credits
 
 Some parts of the code are based on the [Joplin Notes browser extension](https://github.com/laurent22/joplin/tree/master/Clipper).

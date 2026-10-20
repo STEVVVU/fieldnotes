@@ -17,6 +17,7 @@
   "keywords": [],
   "packageManager": "pnpm@12.14.0",
   "devDependencies": {
+    "@triliumnext/commons": "workspace:*",
     "@triliumnext/client": "workspace:*",
     "@wxt-dev/auto-icons": "1.1.2",
     "jszip": "3.10.2",

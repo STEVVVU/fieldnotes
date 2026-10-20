@@ -23,6 +23,8 @@ Send `doctor` on the helper's stdin. It checks its owned process, initialized ap
 
 Send `drive` to create and retrieve a text note through production `/etapi/create-note`, `/etapi/notes/:id` and `/etapi/notes/:id/content`. Send `restart` to stop and relaunch the owned server against the same isolated SQLite database, then re-read exact title and content.
 
+Send `evidence` to preserve a synthetic research page through the production clipper HTTP route. The helper serves the owned source on `port + 1`, checks exact snapshot bytes and the manifest through ETAPI, tests identical and changed retries, and asserts the missing image endpoint receives zero requests. `restart` and `verify` re-read this evidence record too. This is real server API proof, not installed-extension proof.
+
 For web observations use CUA, opening the logged loopback URL. Sign into this synthetic fixture with its existing password. Observe the created note in the tree or search and reload it. Drive UI actions through CUA; do not inject page state, run app-internal setters or substitute a DOM fixture for an installed extension.
 
 ## Evidence
@@ -35,4 +37,4 @@ Send `cleanup`. The helper stops only the process tree it created, checks the li
 
 ## Helpers
 
-`tools/verify-fieldnotes-server.mjs <unique-run-name> [port]` is a line-oriented real-server driver. Commands are `doctor`, `drive`, `verify`, `restart`, `cleanup`. See [feature map](features/README.md) for proof scope and blocked surfaces.
+`tools/verify-fieldnotes-server.mjs <unique-run-name> [port]` is a line-oriented real-server driver. Commands are `doctor`, `drive`, `evidence`, `verify`, `restart`, `cleanup`. See [feature map](features/README.md) for proof scope and blocked surfaces.

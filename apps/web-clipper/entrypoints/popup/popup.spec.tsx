@@ -94,7 +94,7 @@ describe("popup", () => {
     it("asks for the connection status and shows it in the footer", async () => {
         expect(sendMessage).toHaveBeenCalledWith({ name: "send-trilium-search-status" });
         expect(status()).toEqual({ dot: "status-dot status-dot-pending", text: "Looking for Trilium…" });
-        expect(captureButtons()).toHaveLength(5);
+        expect(captureButtons()).toHaveLength(6);
         expect(container.querySelector(".popup-header")).toBeNull();
         expect([ ...container.querySelectorAll(".connection button") ].map((b) => b.getAttribute("aria-label")))
             .toEqual([ "Check the connection again", "Options", "Help" ]);
@@ -230,7 +230,7 @@ describe("popup", () => {
         expect(tabsQuery).toHaveBeenCalledWith({ active: true, currentWindow: true });
         expect(executeScript).toHaveBeenCalledWith({ target: { tabId: 7 }, files: [ "/readable-page.js" ] });
 
-        expect(cardParts()).toEqual([ "page-heading", "clip-mode", "page-body", "btn btn-primary primary-action" ]);
+        expect(cardParts()).toEqual([ "page-heading", "clip-mode", "page-body", "btn btn-primary primary-action", "evidence-panel" ]);
         expect(modes()).toEqual([ [ "Page", "true" ], [ "Bookmark", "false" ] ]);
         const heading = container.querySelector(".page-heading");
         expect(heading).not.toBeNull();

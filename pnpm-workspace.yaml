@@ -102,8 +102,9 @@ overrides:
   "file-type@>=13.0.0 <21.3.1": ">=21.3.1"
   "vite@>=7.0.0 <=7.3.1": ">=7.3.2"
   "vite@>=7.1.0 <=7.3.1": ">=7.3.2"
-  "hono@<4.12.12": ">=4.12.12"
-  "hono@>=4.0.0 <=4.12.11": ">=4.12.12"
+  "hono@<4.13.11": "4.13.11"
+  "http-cache-semantics@4.2.0": "4.3.0"
+  "markdown-it@14.3.1": "14.3.2"
   "@hono/node-server@<1.19.13": ">=1.19.13"
   "basic-ftp@=5.2.0": ">=5.2.1"
   # extract-zip's yauzl@2 hangs electron-forge packaging on Node >=24.16 (electron/forge#4277,

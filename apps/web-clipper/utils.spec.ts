@@ -39,6 +39,10 @@ describe("createLink", () => {
         expect(createLink(action, "Close", "tomato").style.color).toBe("tomato");
 
         link.click();
+        expect(sendMessage).not.toHaveBeenCalled();
+        const trustedClick = new MouseEvent("click");
+        Object.defineProperty(trustedClick, "isTrusted", { value: true });
+        link.dispatchEvent(trustedClick);
         expect(sendMessage).toHaveBeenCalledWith(null, action);
     });
 });

@@ -10,7 +10,9 @@ Launch the Electron app with separate absolute `TRILIUM_DATA_DIR` and `TRILIUM_E
 
 ## Driving it with Electron and CUA
 
-Use a task-owned profile and process, never the user's existing Trilium data. Inspect the actual native renderer before claiming a desktop pass. A browser view of the server is only web proof. Keep `nodeIntegration` disabled and `contextIsolation` enabled.
+Build with `pnpm --filter desktop build`. For the Windows main-process check, install the official pinned Electron runtime with `node node_modules/electron/install.js`, then run `node tools/verify-fieldnotes-desktop.mjs desktop-001 8099` with a new run name. The maintained driver copies the synthetic fixture into its own profile, launches the actual Electron executable with `--start-hidden`, checks clipper/evidence capability, captures an evidence record, checks refusal of an unrelated Host, stops its owned process tree confirms the record remains in SQLite after shutdown and retains `desktop-result.json` and logs. This passed desktop-002 on 2026-10-20.
+
+Inspect the actual native renderer before claiming a rendering or installation pass. A browser view of the server is web proof. Keep `nodeIntegration` disabled and `contextIsolation` enabled.
 
 ## Gotchas
 

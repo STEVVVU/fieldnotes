@@ -8,7 +8,7 @@ const SERVER = { triliumServerUrl: "https://trilium.example", authToken: "secret
 const LOCAL_DATE_TIME = /^\d{4}-\d\d-\d\d \d\d:\d\d:\d\d\.\d{3}[+-]\d\d:\d\d$/;
 const DESKTOP_HANDSHAKE = "http://127.0.0.1:37743/api/clipper/handshake";
 const FOUND_DESKTOP = { status: "found-desktop", port: 37743, url: "http://127.0.0.1:37743", protocolMinor: 0 };
-const FOUND_SERVER = { status: "found-server", url: "https://trilium.example", token: "secret", protocolMinor: 0 };
+const FOUND_SERVER = { status: "found-server", url: "https://trilium.example", protocolMinor: 0 };
 
 type PopupMessage = { name: string, triliumSearch?: unknown, searchNote?: unknown };
 const sendMessage = vi.fn(async (_message: PopupMessage) => {});
@@ -16,6 +16,7 @@ const sendMessage = vi.fn(async (_message: PopupMessage) => {});
 describe("TriliumServerFacade", () => {
     beforeEach(() => {
         fakeBrowser.reset();
+        vi.spyOn(fakeBrowser.storage.sync, "setAccessLevel").mockResolvedValue();
         vi.useFakeTimers();
         vi.stubGlobal("fetch", fetchMock);
         fetchMock.mockReset();
@@ -31,6 +32,44 @@ describe("TriliumServerFacade", () => {
         vi.unstubAllGlobals();
         vi.unstubAllEnvs();
         vi.restoreAllMocks();
+    });
+
+    it("redacts legacy cached tokens and restricts Chrome sync storage to trusted extension contexts", async () => {
+        await fakeBrowser.storage.session.set({ triliumSearch: { ...FOUND_SERVER, token: "legacy-secret" } });
+        let finish: (value: Response) => void = () => {};
+        fetchMock.mockReturnValue(new Promise((resolve) => finish = resolve));
+        const facade = new TriliumServerFacade();
+        await facade.sendTriliumSearchStatusToPopup();
+        expect(JSON.stringify(sendMessage.mock.calls)).not.toContain("legacy-secret");
+        expect(await fakeBrowser.storage.session.get("triliumSearch")).toEqual({ triliumSearch: FOUND_SERVER });
+        expect(fakeBrowser.storage.sync.setAccessLevel).toHaveBeenCalledWith({ accessLevel: "TRUSTED_CONTEXTS" });
+        finish(handshake("1.0"));
+        await facade.waitForTriliumSearch();
+    });
+
+    it("does not send a fresh token to a server URL from a stale search", async () => {
+        await fakeBrowser.storage.sync.set(SERVER);
+        fetchMock.mockImplementation(async (url) => url === DESKTOP_HANDSHAKE ? new Response("missing", { status: 404 }) : handshake("1.0"));
+        const facade = await createFacade();
+        expect(await facade.getDestinationIdentity()).toBe("Server https://trilium.example");
+        await expect(facade.callService("POST", "evidence", {}, "Desktop http://127.0.0.1:37743")).rejects.toThrow("destination changed");
+        await fakeBrowser.storage.sync.set({ triliumServerUrl: "https://new.example", authToken: "new-secret" });
+        fetchMock.mockClear();
+        await expect(facade.callService("POST", "notes", {})).rejects.toThrow("configuration changed");
+        expect(fetchMock).not.toHaveBeenCalled();
+    });
+
+    it("can discover the desktop where the storage access-level API is absent", async () => {
+        const original = fakeBrowser.storage.sync.setAccessLevel;
+        Object.defineProperty(fakeBrowser.storage.sync, "setAccessLevel", { value: undefined, configurable: true });
+        try {
+            fetchMock.mockResolvedValue(handshake("1.0"));
+            const facade = await createFacade();
+            expect(await facade.getDestinationIdentity()).toBe("Desktop http://127.0.0.1:37743");
+            expect(lastSearchStatus()).toEqual(FOUND_DESKTOP);
+        } finally {
+            Object.defineProperty(fakeBrowser.storage.sync, "setAccessLevel", { value: original, configurable: true });
+        }
     });
 
     describe("search for Trilium", () => {

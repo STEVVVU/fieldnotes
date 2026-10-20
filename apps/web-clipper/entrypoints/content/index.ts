@@ -144,6 +144,7 @@ export default defineContentScript({
 
         async function prepareMessageResponse(message: {
             name: string, noteId?: string, message?: string, tabIds?: string[], x?: number, y?: number,
+            openGrant?: string, closeGrant?: string,
             step?: FloatingElementsStep
         }) {
             console.info(`Message: ${  message.name}`);
@@ -156,7 +157,7 @@ export default defineContentScript({
                     messageText.setAttribute("style", "padding: 0; margin: 0; font-size: larger;");
                     messageText.appendChild(document.createTextNode(`${message.message  } `));
                     messageText.appendChild(createLink(
-                        {name: 'openNoteInTrilium', noteId: message.noteId},
+                        { name: "redeem-toast", grant: message.openGrant },
                         "Open in Trilium."
                     ));
 
@@ -164,7 +165,7 @@ export default defineContentScript({
                     if (message.tabIds) {
                         messageText.appendChild(document.createElement("br"));
                         messageText.appendChild(createLink(
-                            {name: 'closeTabs', tabIds: message.tabIds},
+                            { name: "redeem-toast", grant: message.closeGrant },
                             "Close saved tabs.",
                             "tomato"
                         ));

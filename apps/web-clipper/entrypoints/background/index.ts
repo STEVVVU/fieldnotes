@@ -5,7 +5,9 @@ import {
     describeError, extractPage, isPdfTab, OPTIONAL_REQUEST_TIMEOUT_MS, randomString, type Rect, type SaveOutcome, type Saved
 } from "@/utils";
 
+import { MessageBroker } from "./broker";
 import setupContextMenu from "./context_menu";
+import { EvidenceCaptures } from "./evidence";
 import TriliumServerFacade, { TriliumError } from "./trilium_server_facade";
 
 type BackgroundMessage = {
@@ -13,6 +15,8 @@ type BackgroundMessage = {
     message: string;
     noteId: string | null;
     tabIds: number[] | null;
+    openGrant?: string;
+    closeGrant?: string;
 } | {
     name: "trilium-save-selection";
 } | {
@@ -76,7 +80,9 @@ type ClippedImage = { imageId: string, src: string, dataUrl?: string, screenshot
 type ContextMenuInfo = Browser.contextMenus.OnClickData & { linkText?: string };
 
 export default defineBackground(() => {
+    const broker = new MessageBroker();
     const triliumServerFacade = new TriliumServerFacade();
+    const evidence = new EvidenceCaptures(triliumServerFacade);
     /** The open popups: each keeps a port named "popup" connected while it is. */
     const openPopups = new Set<Browser.runtime.Port>();
     /**
@@ -382,11 +388,14 @@ export default defineBackground(() => {
     }
 
     function toast(message: string, noteId: string | null = null, tabIds: number[] | null = null) {
-        sendMessageToActiveTab({
-            name: 'toast',
-            message,
-            noteId,
-            tabIds
+        void getActiveTab().then((tab) => {
+            if (tab.id === undefined) throw new Error("No active page for notification.");
+            const target = tab.url ? { id: tab.id, url: tab.url } : undefined;
+            return browser.tabs.sendMessage(tab.id, {
+                name: "toast", message, noteId, tabIds,
+                ...(target && noteId && { openGrant: broker.issue(target, { name: "openNoteInTrilium", noteId }) }),
+                ...(target && tabIds && { closeGrant: broker.issue(target, { name: "closeTabs", tabIds }) })
+            });
         }).catch(() => {
             // Browser pages and the extension stores run no content script to show it.
         });
@@ -773,13 +782,20 @@ export default defineBackground(() => {
     }));
 
     // Chrome ignores a promise the listener returns: it answers through `sendResponse()`, after `true`.
-    browser.runtime.onMessage.addListener((request, _sender, sendResponse) => {
-        void showFailures(() => handleMessage(request)).then(sendResponse);
+    browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
+        if (request?.type === "CROP_IMAGE") return false;
+        const authorized = broker.authorize(request, sender);
+        if (!authorized) {
+            sendResponse({ error: "Message sender is not authorized." });
+            return true;
+        }
+        void showFailures(() => handleMessage(authorized)).then(sendResponse);
         return true;
     });
 
     async function handleMessage(request: any) {
-        console.log("Received", request);
+        if (request.name === "prepare-evidence") return await evidence.prepare(request.mode);
+        if (request.name === "commit-evidence") return await saveForPopup(() => evidence.commit(request.captureId, request.contentSha256));
 
         if (request.name === 'openNoteInTrilium') {
             const resp = await triliumServerFacade.callService('POST', `open/${request.noteId}`);

@@ -90,6 +90,8 @@ export default defineConfig({
             "tsconfig.base.json",
             "patches/**",
             "apps/web-clipper/**",
+            "packages/commons/package.json",
+            "packages/commons/src/lib/evidence_capture.ts",
             "apps/client/package.json",
             "apps/client/src/stylesheets/buttons.css",
             "apps/client/src/stylesheets/theme-next/buttons.css",

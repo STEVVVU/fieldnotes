@@ -107,10 +107,12 @@ export function getPageLocationOrigin() {
 
 export function createLink(clickAction: object, text: string, color = "lightskyblue") {
     const link = document.createElement('a');
-    link.href = "javascript:";
+    link.href = "#";
     link.style.color = color;
     link.appendChild(document.createTextNode(text));
-    link.addEventListener("click", () => {
+    link.addEventListener("click", (event) => {
+        event.preventDefault();
+        if (!event.isTrusted) return;
         browser.runtime.sendMessage(null, clickAction);
     });
 

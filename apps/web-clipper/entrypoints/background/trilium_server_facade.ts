@@ -14,7 +14,6 @@ export type TriliumSearchStatus = {
 } | {
     status: "found-server",
     url: string;
-    token: string;
     protocolMinor: number;
 } | {
     status: "version-mismatch";
@@ -48,6 +47,7 @@ export class TriliumError extends Error {
 }
 
 export default class TriliumServerFacade {
+    private readonly storageReady = browser.storage.sync.setAccessLevel?.({ accessLevel: "TRUSTED_CONTEXTS" });
     private triliumSearch: TriliumSearchStatus = { status: "searching" };
     private triliumSearchNote?: TriliumSearchNoteStatus;
     /** The latest search, which `callService()` waits for. */
@@ -122,11 +122,18 @@ export default class TriliumServerFacade {
     private async restoreLastSearch() {
         const stored = await browser.storage.session
             ?.get<{ triliumSearch?: SearchResult }>("triliumSearch");
-        if (stored?.triliumSearch) this.triliumSearch = stored.triliumSearch;
+        if (stored?.triliumSearch) {
+            const status = stored.triliumSearch;
+            this.triliumSearch = status.status === "found-server"
+                ? { status: "found-server", url: status.url, protocolMinor: status.protocolMinor }
+                : status;
+            await browser.storage.session?.set({ triliumSearch: this.triliumSearch });
+        }
     }
 
     /** Asks the desktop app and the server at once, and prefers the desktop app when both answer. */
     private async findTrilium(): Promise<SearchResult> {
+        await this.storageReady;
         const port = await this.getPort();
         const desktopUrl = `http://127.0.0.1:${port}`;
         const { triliumServerUrl, authToken } = await browser.storage.sync
@@ -137,7 +144,6 @@ export default class TriliumServerFacade {
                 .then((json) => json && checkVersion(json, (protocolMinor) => ({
                     status: "found-server",
                     url: triliumServerUrl,
-                    token: authToken,
                     protocolMinor
                 })))
             : Promise.resolve(null);
@@ -218,15 +224,28 @@ export default class TriliumServerFacade {
         return search;
     }
 
-    async callService(method: string, path: string, body?: string | object) {
+    async getDestinationIdentity() {
         const search = await this.waitForCompatibleTrilium();
+        return `${search.status === "found-desktop" ? "Desktop" : "Server"} ${search.url}`;
+    }
+
+    async callService(method: string, path: string, body?: string | object, expectedDestination?: string) {
+        const search = await this.waitForCompatibleTrilium();
+        const destination = `${search.status === "found-desktop" ? "Desktop" : "Server"} ${search.url}`;
+        if (expectedDestination !== undefined && expectedDestination !== destination) throw requestFailed("Evidence destination changed. Capture and preview again.");
+        let token = "";
+        if (search.status === "found-server") {
+            const config = await browser.storage.sync.get<{ authToken?: string; triliumServerUrl?: string }>(["authToken", "triliumServerUrl"]);
+            if (config.triliumServerUrl !== search.url || !config.authToken) throw requestFailed("Server configuration changed. Check the connection again.");
+            token = config.authToken;
+        }
 
         let response: Response;
         try {
             const fetchOptions: RequestInit = {
                 method,
                 headers: {
-                    Authorization: search.status === "found-server" ? search.token : "",
+                    Authorization: token,
                     'Content-Type': 'application/json',
                     'trilium-local-now-datetime': this.localNowDateTime()
                 },
