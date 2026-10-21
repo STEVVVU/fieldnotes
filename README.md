@@ -52,7 +52,7 @@ pnpm --filter web-clipper build:firefox
 
 Chrome output is `apps/web-clipper/.output/chrome-mv3`; Firefox output is `.output/firefox-mv2`. Configure the built extension against this fork's server, then use **Preview article evidence** or **Preview selection evidence** in the popup. Inspect the destination and digest before **Preserve this capture**. The ordinary Trilium store extension does not contain Fieldnotes' additions.
 
-Evidence capture requires browser document IDs. A browser without that capability can still use inherited capture modes, but the new evidence action refuses to proceed. Both targets build locally; neither target has an installed-extension acceptance pass yet.
+Evidence capture requires browser document IDs. A browser without that capability can still use inherited capture modes, but the new evidence action refuses to proceed. Both targets build locally. The installed-extension check was skipped at the user’s request, so installed capture remains unverified.
 
 ## Verification
 

@@ -16,4 +16,4 @@ Use the helper's `evidence`, `restart`, `verify` and `cleanup` commands to prove
 
 ## Gotchas
 
-Current CUA inventory exposes IAB and MCP Apps only. Actual capture and content-script abuse checks remain blocked until a supported browser with this build loaded is controllable.
+The user explicitly skipped the installed-extension check and prioritized GitHub code delivery. Installed capture and content-script abuse checks remain unexecuted. The available CUA connection exposes IAB and MCP Apps only; a supported extension host would be required to run this optional acceptance path later.
