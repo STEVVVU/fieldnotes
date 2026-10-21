@@ -66,13 +66,13 @@ The clipper has 176 passing tests with its existing 100% line, statement, branch
 
 The Windows desktop bundle builds, and the actual Electron 44.7.2 main process preserves an evidence record, passes Host-header checks and retains that record in SQLite after shutdown. Its maintained driver is `node tools/verify-fieldnotes-desktop.mjs <new-run-name> 8099`.
 
-The [hosted native check](https://github.com/STEVVVU/fieldnotes/actions/runs/39525816828) also passed on macOS. It captured evidence through the real Electron process, displayed it over the production custom protocol, closed the app, reopened the same SQLite profile and checked the exact retained record and original-ID retry. The actual reopened PNG was inspected. Sandbox protections, disabled Node integration and context isolation remained in place; the owned process group and listener stopped, with evidence retained. This establishes the tested Mac renderer and restart path, not Windows rendering or packaged installation.
+The [hosted native check](https://github.com/STEVVVU/fieldnotes/actions/runs/39527131178) passed on macOS. It captured evidence through the real Electron process, displayed it over the production custom protocol and performed three deliberate shutdown/relaunch cycles against the same SQLite profile. Each cycle checked the exact retained record, native rendering and original-ID retry. The third-relaunch PNG was inspected. Sandbox protections, disabled Node integration and context isolation remained in place; the owned process groups and listener stopped, with evidence retained.76protocol/security tests and root types also passed. This establishes the tested Mac renderer and restart paths, not Windows rendering or packaged installation.
 
 ![Actual Fieldnotes Electron renderer after reopening its disk-backed notebook](docs/images/fieldnotes-native.png)
 
-Actual hosted Mac renderer after restart, showing a synthetic capture. The reading note is an inert text conversion; the snapshot and manifest remain separate attachments.
+Actual hosted Mac renderer after the third relaunch, showing a synthetic capture. The reading note is an inert text conversion; the snapshot and manifest remain separate attachments.
 
-A later [relaunch probe](https://github.com/STEVVVU/fieldnotes/actions/runs/39526365093) exposed intermittent startup rejection of the app's script when Electron supplied no requesting frame. The security guard kept that request blocked. The current investigation tests removal of optional custom-scheme code caching, with repeated deliberate relaunches and unchanged frame authorization. The earlier successful run is bounded evidence; reliable startup remains under verification.
+An earlier [relaunch probe](https://github.com/STEVVVU/fieldnotes/actions/runs/39526365093) exposed startup rejection of the app's script when Electron supplied no requesting frame. Optional custom-scheme code caching is now disabled; the same frame guard still denies unknown requesters. The three-relaunch run passed with that configuration. It does not establish why Electron omitted the frame or guarantee every future startup. No startup-performance claim is made.
 
 ## Research connection
 
