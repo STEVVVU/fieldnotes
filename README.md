@@ -62,9 +62,15 @@ pnpm --filter server test --run src/routes/api/evidence.spec.ts src/routes/api/c
 pnpm typecheck
 ```
 
-The clipper has 176 passing tests with its existing 100% line, statement, branch and function thresholds. The real HTTP driver verifies authentication, capture receipts, byte preservation, server restart and zero server requests for missing images. [Verification instructions and feature map](.agents/skills/verify-fieldnotes/SKILL.md) distinguish those checks from unavailable installed-extension and native desktop checks.
+The clipper has 176 passing tests with its existing 100% line, statement, branch and function thresholds. The real HTTP driver verifies authentication, capture receipts, byte preservation, server restart and zero server requests for missing images. [Verification instructions and feature map](.agents/skills/verify-fieldnotes/SKILL.md) distinguish those checks from native desktop and installed-extension evidence.
 
-The Windows desktop bundle builds, and the actual Electron 44.7.2 main process preserves an evidence record, passes Host-header checks and retains that record in SQLite after shutdown. The maintained driver is `node tools/verify-fieldnotes-desktop.mjs <new-run-name> 8099`. Native rendering and packaged installation remain unverified.
+The Windows desktop bundle builds, and the actual Electron 44.7.2 main process preserves an evidence record, passes Host-header checks and retains that record in SQLite after shutdown. Its maintained driver is `node tools/verify-fieldnotes-desktop.mjs <new-run-name> 8099`.
+
+The [hosted native check](https://github.com/STEVVVU/fieldnotes/actions/runs/39525816828) also passed on macOS. It captured evidence through the real Electron process, displayed it over the production custom protocol, closed the app, reopened the same SQLite profile and checked the exact retained record and original-ID retry. The actual reopened PNG was inspected. Sandbox protections, disabled Node integration and context isolation remained in place; the owned process group and listener stopped, with evidence retained. This establishes the tested Mac renderer and restart path, not Windows rendering or packaged installation.
+
+![Actual Fieldnotes Electron renderer after reopening its disk-backed notebook](docs/images/fieldnotes-native.png)
+
+Actual hosted Mac renderer after restart, showing a synthetic capture. The reading note is an inert text conversion; the snapshot and manifest remain separate attachments.
 
 ## Research connection
 
@@ -78,7 +84,7 @@ Hashes establish consistency of the stored bytes. They do not prove website auth
 
 The snapshot is extracted HTML, not a complete original HTTP response or an offline page archive. The manifest lists referenced images as not captured. The server's no-fetch behavior is verified; inherited browser extraction and rich preview can load resources. No browser-wide no-network guarantee is claimed.
 
-Chrome's storage restriction depends on `storage.sync.setAccessLevel`. Other browsers do not gain that guarantee when the API is absent. Broad inherited host permissions remain. Live sync, store submission, packaged desktop installation, mobile platforms and native rendering have not been verified for this fork.
+Chrome's storage restriction depends on `storage.sync.setAccessLevel`. Other browsers do not gain that guarantee when the API is absent. Broad inherited host permissions remain. Live sync, store submission, packaged desktop installation, mobile platforms, Windows rendering and installed-extension capture have not been verified for this fork.
 
 The full upstream workspace still has **four dependency advisories**, including three high and one moderate, as of October 20, 2026. See [the dependency assessment and API contract](FIELDNOTES.md). This is a development fork, not a production security certification.
 

@@ -41,7 +41,7 @@ Send `cleanup`. The helper stops only the process tree it created, checks the li
 
 ## Hosted native renderer
 
-Draft until actual hosted evidence is inspected. The `native-desktop` job builds the existing Electron app on macOS 26 with the locked dependencies. It reuses the upstream project's Playwright Electron support on the dedicated hosted Mac. It does not control local apps or replace CUA for browser tests.
+Proven on [39525816828](https://github.com/STEVVVU/fieldnotes/actions/runs/39525816828), source f618152. Main inspected the reopened native PNG and retained action/cleanup results. The `native-desktop` job builds the existing Electron app on macOS 26 with the locked dependencies. It reuses the upstream project's Playwright Electron support on the dedicated hosted Mac. It does not control local apps or replace CUA for browser tests.
 
 ```sh
 pnpm --filter @triliumnext/desktop build
