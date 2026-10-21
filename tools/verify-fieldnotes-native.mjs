@@ -49,17 +49,20 @@ try {
     assert.equal(record.manifest.snapshot.sha256, contentSha256);
     result.actions.push({ action: "capture", noteId: receipt.noteId, contentSha256 });
     await showEvidence(receipt.noteId, "captured");
-    await stop();
-    await portFree();
-    result.actions.push({ action: "shutdown-before-reopen" });
-    await launch("reopened");
-    const restored = await request("/api/clipper/evidence/" + capture.captureId);
-    assert.deepEqual(restored, record, "Desktop restart changed the evidence record.");
-    await showEvidence(receipt.noteId, "reopened");
-    const replay = await request("/api/clipper/evidence", capture);
-    assert.equal(replay.replayed, true);
-    assert.equal(replay.noteId, receipt.noteId);
-    result.actions.push({ action: "native-reopen", exactRecordRetained: true, originalIdReplay: true });
+    for (let cycle = 1; cycle <= 3; cycle++) {
+        await stop();
+        await portFree();
+        result.actions.push({ action: "shutdown-before-reopen", cycle });
+        const stage = cycle === 1 ? "reopened" : "reopened-" + cycle;
+        await launch(stage);
+        const restored = await request("/api/clipper/evidence/" + capture.captureId);
+        assert.deepEqual(restored, record, "Desktop restart changed the evidence record.");
+        await showEvidence(receipt.noteId, stage);
+        const replay = await request("/api/clipper/evidence", capture);
+        assert.equal(replay.replayed, true);
+        assert.equal(replay.noteId, receipt.noteId);
+        result.actions.push({ action: "native-reopen", cycle, exactRecordRetained: true, originalIdReplay: true });
+    }
     result.nativeAcceptance = true;
 } catch (error) {
     result.error = String(error?.stack ?? error);

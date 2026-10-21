@@ -72,6 +72,8 @@ The [hosted native check](https://github.com/STEVVVU/fieldnotes/actions/runs/395
 
 Actual hosted Mac renderer after restart, showing a synthetic capture. The reading note is an inert text conversion; the snapshot and manifest remain separate attachments.
 
+A later [relaunch probe](https://github.com/STEVVVU/fieldnotes/actions/runs/39526365093) exposed intermittent startup rejection of the app's script when Electron supplied no requesting frame. The security guard kept that request blocked. The current investigation tests removal of optional custom-scheme code caching, with repeated deliberate relaunches and unchanged frame authorization. The earlier successful run is bounded evidence; reliable startup remains under verification.
+
 ## Research connection
 
 The broker experiment adapts the compromised-content-script threat model from [Carlini, Felt and Wagner, *An Evaluation of the Google Chrome Extension Security Architecture*, section 5.1](https://www.usenix.org/system/files/conference/usenixsecurity12/sec12-final177_0.pdf). Regression cases attempt unsolicited saves, arbitrary PDF fetches, unrelated tab closure and arbitrary note opening, then check that denied requests have no network or tab side effects.

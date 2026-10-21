@@ -32,10 +32,7 @@ export function registerTriliumAppScheme() {
                 secure: true,
                 supportFetchAPI: true,
                 corsEnabled: true,
-                // Chromium only code-caches http(s) scripts by default; without
-                // this the renderer bundle is recompiled from source on every
-                // launch instead of reusing bytecode from the Code Cache dir.
-                codeCache: true
+                codeCache: false
             }
         }
     ]);
@@ -133,7 +130,8 @@ function installFrameOriginGuard() {
 
         const allowed = isRequestorChainTrusted(details.resourceType, frameUrls);
         if (!allowed) {
-            console.error(`[trilium-app] blocked ${details.method} ${details.url} from frame chain [${frameUrls.join(" ← ")}]`);
+            console.error(`[trilium-app] blocked ${details.method} ${details.url} from frame chain [${frameUrls.join(" ← ")}]`,
+                { resourceType: details.resourceType, webContentsId: details.webContentsId });
         }
         callback({ cancel: !allowed });
     });
