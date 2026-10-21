@@ -38,3 +38,16 @@ Send `cleanup`. The helper stops only the process tree it created, checks the li
 ## Helpers
 
 `tools/verify-fieldnotes-server.mjs <unique-run-name> [port]` is a line-oriented real-server driver. Commands are `doctor`, `drive`, `evidence`, `verify`, `restart`, `cleanup`. See [feature map](features/README.md) for proof scope and blocked surfaces.
+
+## Hosted native renderer
+
+Draft until actual hosted evidence is inspected. The `native-desktop` job builds the existing Electron app on Ubuntu 24.04 with the locked dependencies. It reuses the upstream project's Playwright Electron support against its own hosted X display. It does not control local apps or replace CUA for browser tests.
+
+```sh
+pnpm --filter @triliumnext/desktop build
+xvfb-run -a node tools/verify-fieldnotes-native.mjs <unique-run-name>
+```
+
+The driver refuses non-hosted or non-Linux execution and requires a display. It copies the synthetic SQLite fixture into an isolated directory, launches the actual production bundle, checks the real clipper handshake and rendered tree, and records the native custom protocol and existing security preferences. It submits synthetic evidence through the production loopback API, opens it through the production clipper route and requires the actual renderer to display its title, inert text and capture notice. It then closes the app, verifies the listener stopped, relaunches against the same disk database and checks the exact evidence record, rendered content and original-ID replay. There is no app-state injection, dialog stub, in-memory database or security-preference override.
+
+The real PNGs, rendered HTML, process log and `native-result.json` survive cleanup. Inspect the PNG before accepting rendering. This scope is the Linux native renderer and disk restart; it does not establish Windows rendering, installer behavior or extension installation. [Playwright's Electron API](https://playwright.dev/docs/api/class-electron) is experimental and already used by upstream desktop tests.

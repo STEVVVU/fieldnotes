@@ -36,3 +36,29 @@ jobs:
           path: |
             .audit/verification/*/result.json
             .audit/verification/*/server.log
+
+  native-desktop:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.22.0
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 12.14.0
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @triliumnext/desktop build
+      - name: Verify the real native renderer and restart
+        run: xvfb-run -a node tools/verify-fieldnotes-native.mjs native-${{ github.run_id }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fieldnotes-native-evidence
+          path: |
+            .audit/verification/*/native-result.json
+            .audit/verification/*/desktop.log
+            .audit/verification/*/*.png
+            .audit/verification/*/*.html
+          retention-days: 7

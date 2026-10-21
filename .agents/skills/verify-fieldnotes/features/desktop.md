@@ -17,3 +17,5 @@ Inspect the actual native renderer before claiming a rendering or installation p
 ## Gotchas
 
 Native app control is not currently exposed by the active CUA surface. Build and IPC tests can provide partial evidence but cannot establish native rendering acceptance.
+
+The hosted-only `tools/verify-fieldnotes-native.mjs` driver now targets the actual Linux Electron renderer on an owned X display. It uses the existing upstream Electron test integration, real clipper capture/open routes and the production custom protocol, then checks rendering again after disk-backed restart. Hosted execution and screenshot inspection are pending. The Windows main-process proof above remains separate.
