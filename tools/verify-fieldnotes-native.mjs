@@ -6,8 +6,8 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { _electron as electron, expect } from "@playwright/test";
 
-assert(process.env.GITHUB_ACTIONS === "true" && process.platform === "linux" && process.env.DISPLAY,
-    "Native window verification runs only on the dedicated Linux hosted display.");
+assert(process.env.GITHUB_ACTIONS === "true" && process.platform === "darwin",
+    "Native window verification runs only on the dedicated macOS hosted runner.");
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const runName = process.argv[2];
 assert(runName && /^[A-Za-z0-9_-]{1,60}$/.test(runName), "Use a unique short run name.");

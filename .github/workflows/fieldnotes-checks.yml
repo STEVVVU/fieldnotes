@@ -38,7 +38,7 @@ jobs:
             .audit/verification/*/server.log
 
   native-desktop:
-    runs-on: ubuntu-24.04
+    runs-on: macos-26
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
@@ -56,7 +56,7 @@ jobs:
         run: |
           mkdir -p .audit/verification/native-${{ github.run_id }}
           set -o pipefail
-          xvfb-run -a node tools/verify-fieldnotes-native.mjs native-${{ github.run_id }} 2>&1 | tee .audit/verification/native-${{ github.run_id }}/launch.log
+          node tools/verify-fieldnotes-native.mjs native-${{ github.run_id }} 2>&1 | tee .audit/verification/native-${{ github.run_id }}/launch.log
       - uses: actions/upload-artifact@v4
         if: always()
         with:

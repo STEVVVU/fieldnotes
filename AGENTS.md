@@ -8,6 +8,6 @@ Run the narrowest relevant Vitest specs. The initial clipper baseline is `pnpm -
 
 Before product changes, use `.agents/skills/verify-fieldnotes/SKILL.md`. Its maintained driver is `tools/verify-fieldnotes-server.mjs`; generated evidence stays under ignored `.audit/verification/`. Never launch against the user's Trilium data or disable authentication. Browser tests use CUA. Installed-extension and native Electron proof are distinct from web UI or mocked API tests.
 
-Native Electron verification can reuse upstream's Electron test integration on the dedicated hosted Linux display through `tools/verify-fieldnotes-native.mjs`. Its host guard must remain enforced. This does not authorize local native automation or replace CUA for browser observations.
+Native Electron verification can reuse upstream's Electron test integration on the dedicated hosted Mac through `tools/verify-fieldnotes-native.mjs`. Its host guard must remain enforced. This does not authorize local native automation or replace CUA for browser observations.
 
 Push only to the user's fork. Keep the original remote named `upstream`. Do not create release tags or trigger extension-store submissions. Commit only explicit paths, with accurate current dates and authorship.
